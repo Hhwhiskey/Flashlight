@@ -10,8 +10,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean hasFlash;
     private Camera camera;
     private Camera.Parameters params;
-    private boolean isFlashlightOn;
     public String myMorseString;
     private int sleepTime;
     private SharedPreferences sharedPreferences;
@@ -46,13 +45,23 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAutoOnEnabled;
     private boolean isStayOnEnabled;
     private boolean isShortCutEnabled;
-
+    private boolean isFlashlightOn;
+    private Switch slowSwitch;
+    private Switch fastSwitch;
+    private Switch medSwitch;
+    private Thread slowThread;
+    private Thread mediumThread;
+    private Thread fastThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        slowSwitch = (Switch) findViewById(R.id.slow_switch);
+        medSwitch = (Switch) findViewById(R.id.medium_switch);
+        fastSwitch = (Switch) findViewById(R.id.fast_switch);
 
         // Call method to check for flashlight capabillity
         hasFlashlightCapability();
@@ -68,14 +77,74 @@ public class MainActivity extends AppCompatActivity {
 
         autoStartSwitch.setChecked(isAutoOnEnabled);
         stayOnSwitch.setChecked(isStayOnEnabled);
+
+        slowSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+
+                    if (mediumThread != null) {
+                        mediumThread.interrupt();
+                    }
+                    if (fastThread != null) {
+                        fastThread.interrupt();
+                    }
+
+                    slowBlink(1000, 1000);
+                    medSwitch.setChecked(false);
+                    fastSwitch.setChecked(false);
+                } else {
+                    turnLightOff();
+                    slowThread.interrupt();
+                }
+            }
+        });
+
+        medSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+
+                    if (slowThread != null) {
+                        slowThread.interrupt();
+                    }
+                    if (fastThread != null) {
+                        fastThread.interrupt();
+                    }
+
+                    mediumBlink(500, 1000);
+                    slowSwitch.setChecked(false);
+                    fastSwitch.setChecked(false);
+                } else {
+                    turnLightOff();
+                    mediumThread.interrupt();
+                }
+            }
+        });
+
+        fastSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+
+                    if (slowThread != null) {
+                        slowThread.interrupt();
+                    }
+                    if (mediumThread != null) {
+                        mediumThread.interrupt();
+                    }
+
+                    fastBlink(100, 1000);
+                    slowSwitch.setChecked(false);
+                    medSwitch.setChecked(false);
+                } else {
+                    turnLightOff();
+                    fastThread.interrupt();
+                }
+            }
+        });
     }
 
-    public void turnOnLightIfSetToAuto() {
-
-        if (isAutoOnEnabled && hasFlash) {
-            turnLightOn();
-        }
-    }
 
     // First check if device is supporting flashlight or not
     public void hasFlashlightCapability() {
@@ -126,12 +195,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     // Activate the flashlight
     public void turnLightOn() {
+
         if (!isFlashlightOn) {
             getCamera();
-            if (camera == null || params == null && hasFlash) {
+            if (!hasFlash || params == null || camera == null ) {
                 return;
             }
 
@@ -145,8 +214,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Turn off the flashlight
     public void turnLightOff() {
+
         if (isFlashlightOn) {
-            if (camera == null || params == null) {
+            getCamera();
+
+            if (!hasFlash || params == null || camera == null ) {
                 return;
             }
 
@@ -154,8 +226,79 @@ public class MainActivity extends AppCompatActivity {
             params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
             camera.setParameters(params);
             camera.stopPreview();
+            camera.setPreviewCallback(null);
+            camera.release();
+            camera = null;
             isFlashlightOn = false;
+
         }
+    }
+
+    public void slowBlink(final int delay, final int times) {
+
+        slowThread = new Thread() {
+            public void run() {
+                try {
+                    for (int i=0; i < times; i++) {
+                        if (isFlashlightOn) {
+                            turnLightOff();
+                        } else {
+                            turnLightOn();
+                        }
+                        sleep(delay);
+                    }
+
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        slowThread.start();
+    }
+
+    public void mediumBlink(final int delay, final int times) {
+
+        mediumThread = new Thread() {
+            public void run() {
+                try {
+                    for (int i=0; i < times; i++) {
+                        if (isFlashlightOn) {
+                            turnLightOff();
+                        } else {
+                            turnLightOn();
+                        }
+                        sleep(delay);
+                    }
+
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        mediumThread.start();
+
+    }
+
+    public void fastBlink(final int delay, final int times) {
+
+        fastThread = new Thread() {
+            public void run() {
+                try {
+                    for (int i=0; i < times; i++) {
+                        if (isFlashlightOn) {
+                            turnLightOff();
+                        } else {
+                            turnLightOn();
+                        }
+                        sleep(delay);
+                    }
+
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        fastThread.start();
     }
 
 
@@ -187,84 +330,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-    @OnClick(R.id.sos_button)
-    public void SOS() {
-        Toast.makeText(MainActivity.this, "S.O.S.", Toast.LENGTH_SHORT).show();
+        if (isAutoOnEnabled) {
+            turnLightOn();
+        }
 
-        myMorseString = "111000111";
-
-        new Thread() {
-            public void run() {
-                if (myMorseString != null) {
-                    for (int x = 0; x < myMorseString.length(); x++) {
-                        if (myMorseString.charAt(x) == '2') {
-                            camera = Camera.open();
-                            sleepTime = 500;
-                            Camera.Parameters p = camera.getParameters();
-                            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                            camera.setParameters(p);
-                            camera.startPreview();
-                            try {
-                                Thread.sleep(sleepTime);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            // power off after signal
-                            camera.stopPreview();
-                            camera.release();
-                            camera = null;
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        if (myMorseString.charAt(x) == '1') {
-                            camera = Camera.open();
-                            sleepTime = 250;
-                            Camera.Parameters p = camera.getParameters();
-                            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-                            camera.setParameters(p);
-                            camera.startPreview();
-                            try {
-                                Thread.sleep(sleepTime);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                            // power off after signal
-                            camera.stopPreview();
-                            camera.release();
-                            camera = null;
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        if (myMorseString.charAt(x) == '0') {
-                            camera = Camera.open();
-                            sleepTime = 250;
-                            Camera.Parameters p = camera.getParameters();
-                            camera.setParameters(p);
-                            //cam.startPreview();
-                            camera.stopPreview();
-                            camera.release();
-                            camera = null;
-
-                            try {
-                                Thread.sleep(sleepTime);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-        }.start();
     }
 
     @Override
@@ -273,34 +346,11 @@ public class MainActivity extends AppCompatActivity {
         // on pause turn off the flash if stay on is set to false
         if (!isStayOnEnabled) {
             turnLightOff();
-            try {
-                camera.release();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        if (!isStayOnEnabled) {
-
-        if (isAutoOnEnabled) {
-            getCamera();
-            turnLightOn();
-        }
-//        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//    }
 }

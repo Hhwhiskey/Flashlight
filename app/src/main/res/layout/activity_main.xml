@@ -72,57 +72,57 @@
         android:elevation="4dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:paddingTop="24dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="24dp"
-            android:paddingTop="24dp">
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp">
 
-            <Button
-                android:id="@+id/fast_button"
+            <Switch
+                android:id="@+id/medium_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:background="@color/colorPrimary"
-                android:text="Fast"
-                android:textColor="#FFFFFF"/>
+                android:text="Med  "
+                android:textSize="18dp"
+                android:checked="false" />
 
 
-            <Button
-                android:id="@+id/slow_button"
+            <Switch
+                android:id="@+id/slow_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/fast_button"
+                android:layout_alignBottom="@+id/fast_switch"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:background="@color/colorPrimary"
-                android:text="Slow"
-                android:textColor="#FFFFFF"/>
+                android:layout_marginRight="8dp"
+                android:text="Slow "
+                android:textSize="18dp"
+                android:checked="false" />
 
-            <Button
-                android:id="@+id/sos_button"
+            <Switch
+                android:id="@+id/fast_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/fast_button"
+                android:layout_alignBottom="@+id/fast_switch"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:background="@color/colorPrimary"
-                android:text="S.O.S."
-                android:textColor="#FFFFFF"/>
+                android:text="Fast "
+                android:textSize="18dp"
+                android:checked="false" />
 
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
-        <android.support.design.widget.FloatingActionButton
+    <android.support.design.widget.FloatingActionButton
             android:id="@+id/main_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
