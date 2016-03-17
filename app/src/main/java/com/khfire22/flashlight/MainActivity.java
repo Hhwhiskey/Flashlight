@@ -90,12 +90,12 @@ public class MainActivity extends AppCompatActivity {
                         fastThread.interrupt();
                     }
 
-                    slowBlink(1000, 1000);
+                    slowBlink(500, 1000);
                     medSwitch.setChecked(false);
                     fastSwitch.setChecked(false);
                 } else {
-                    turnLightOff();
                     slowThread.interrupt();
+                    turnLightOff();
                 }
             }
         });
@@ -112,12 +112,13 @@ public class MainActivity extends AppCompatActivity {
                         fastThread.interrupt();
                     }
 
-                    mediumBlink(500, 1000);
+                    mediumBlink(250, 1000);
                     slowSwitch.setChecked(false);
                     fastSwitch.setChecked(false);
                 } else {
-                    turnLightOff();
                     mediumThread.interrupt();
+                    turnLightOff();
+
                 }
             }
         });
@@ -134,12 +135,13 @@ public class MainActivity extends AppCompatActivity {
                         mediumThread.interrupt();
                     }
 
-                    fastBlink(100, 1000);
+                    fastBlink(1, 1000);
                     slowSwitch.setChecked(false);
                     medSwitch.setChecked(false);
                 } else {
-                    turnLightOff();
                     fastThread.interrupt();
+                    turnLightOff();
+
                 }
             }
         });
@@ -227,8 +229,6 @@ public class MainActivity extends AppCompatActivity {
             camera.setParameters(params);
             camera.stopPreview();
             camera.setPreviewCallback(null);
-            camera.release();
-            camera = null;
             isFlashlightOn = false;
 
         }
@@ -250,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (Exception e){
                     e.printStackTrace();
+                    Log.d(TAG, "run: Error = " + e);
                 }
             }
         };
@@ -346,6 +347,7 @@ public class MainActivity extends AppCompatActivity {
         // on pause turn off the flash if stay on is set to false
         if (!isStayOnEnabled) {
             turnLightOff();
+            camera.release();
         }
     }
 
