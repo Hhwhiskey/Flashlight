@@ -5,13 +5,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -52,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
     private Thread slowThread;
     private Thread mediumThread;
     private Thread fastThread;
+    private TextView mTextField;
+    private TextView timerTV;
+    private TextView increaseButton;
+    private TextView decreaseButton;
+    private Button startButton;
+    private static int timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +69,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        //UI Declarations///////////////////////////////////////////////////////////
+        timerTV = (TextView) findViewById(R.id.tv_timer);
+        increaseButton = (TextView) findViewById(R.id.tv_increase);
+        decreaseButton = (TextView) findViewById(R.id.tv_decrease);
+        startButton = (Button) findViewById(R.id.button_start);
         slowSwitch = (Switch) findViewById(R.id.slow_switch);
         medSwitch = (Switch) findViewById(R.id.medium_switch);
         fastSwitch = (Switch) findViewById(R.id.fast_switch);
+        ///////////////////////////////////////////////////////////////////////////
+
+        timer = 1;
+
 
         // Call method to check for flashlight capabillity
         hasFlashlightCapability();
@@ -143,6 +162,48 @@ public class MainActivity extends AppCompatActivity {
                     turnLightOff();
 
                 }
+            }
+        });
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startTimer(timer);
+            }
+        });
+
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (timer > 0) {
+                    timer -= 1;
+
+                    if (timer == 1) {
+                        timerTV.setText(timer + " minute");
+                    } else {
+                        timerTV.setText(timer + " minutes");
+                    }
+                }
+
+            }
+        });
+
+        increaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(timer <= 60) {
+                    timer += 1;
+
+                    if (timer == 1) {
+                        timerTV.setText(timer + " minute");
+
+                    } else{
+                        timerTV.setText(timer + " minutes");
+                    }
+                }
+
             }
         });
     }
@@ -301,6 +362,34 @@ public class MainActivity extends AppCompatActivity {
         };
         fastThread.start();
     }
+
+    public void startTimer(int time) {
+
+        time *= 60000;
+
+        toggleFlashlight();
+
+        new CountDownTimer(time, 60000) {
+
+            public void onTick(long millisUntilFinished) {
+
+                if (millisUntilFinished <= 60000) {
+                    timerTV.setText(millisUntilFinished /1000/60 + " minute");
+
+                } else{
+                    timerTV.setText(millisUntilFinished /1000/60 + " minutes");
+                }
+            }
+
+            public void onFinish() {
+                timerTV.setText("Done!");
+                toggleFlashlight();
+                timer = 1;
+            }
+        }.start();
+    }
+
+
 
 
     // Switches////////////////////////////////////////////////////////////////////////////
