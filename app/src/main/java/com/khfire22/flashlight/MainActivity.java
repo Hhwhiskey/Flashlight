@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView timerTV;
     private TextView increaseButton;
     private TextView decreaseButton;
-    private Button startButton;
+    private Button timerButton;
     private static int timer;
 
     @Override
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         timerTV = (TextView) findViewById(R.id.tv_timer);
         increaseButton = (TextView) findViewById(R.id.tv_increase);
         decreaseButton = (TextView) findViewById(R.id.tv_decrease);
-        startButton = (Button) findViewById(R.id.button_start);
+        timerButton = (Button) findViewById(R.id.button_start);
         slowSwitch = (Switch) findViewById(R.id.slow_switch);
         medSwitch = (Switch) findViewById(R.id.medium_switch);
         fastSwitch = (Switch) findViewById(R.id.fast_switch);
@@ -165,10 +165,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        startButton.setOnClickListener(new View.OnClickListener() {
+        timerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startTimer(timer);
+
+                // If timer button is currently "Stop", then turn off the light and set text to start when pressed
+                if (timerButton.getText().equals("Stop")) {
+                    timerButton.setText("Start");
+                    turnLightOff();
+                } else {
+                    // If timer button is current't "Start", then turn on light with current timer settings
+                    startTimer(timer);
+                    timerButton.setText("Stop");
+
+                }
             }
         });
 
@@ -176,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (timer > 0) {
+                if (timer > 1) {
                     timer -= 1;
 
                     if (timer == 1) {
@@ -184,6 +194,10 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         timerTV.setText(timer + " minutes");
                     }
+
+                    // When decrease is pressed, turn light off and prime the start button
+                    timerButton.setText("Start");
+                    turnLightOff();
                 }
 
             }
@@ -193,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(timer <= 60) {
                     timer += 1;
 
                     if (timer == 1) {
@@ -202,8 +215,10 @@ public class MainActivity extends AppCompatActivity {
                     } else{
                         timerTV.setText(timer + " minutes");
                     }
-                }
 
+                    // When increase is pressed, turn light off and prime the start button
+                    timerButton.setText("Start");
+                    turnLightOff();
             }
         });
     }
@@ -272,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
             camera.setParameters(params);
             camera.startPreview();
             isFlashlightOn = true;
+            Log.d(TAG, "Light is on");
         }
     }
 
@@ -291,6 +307,8 @@ public class MainActivity extends AppCompatActivity {
             camera.stopPreview();
             camera.setPreviewCallback(null);
             isFlashlightOn = false;
+            Log.d(TAG, "Light is off");
+
 
         }
     }
@@ -363,6 +381,9 @@ public class MainActivity extends AppCompatActivity {
         fastThread.start();
     }
 
+    // Take static timer time(milli) passed from the user, and multiply it by 6000 to get minutes
+    // Toggle the light and start timer
+    // When timer ends, set TV to "Done" and toggle the light, and reset timer to 1 minute.
     public void startTimer(int time) {
 
         time *= 60000;
