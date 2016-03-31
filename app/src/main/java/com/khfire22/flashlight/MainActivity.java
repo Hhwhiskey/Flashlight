@@ -22,9 +22,6 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
-
-// Allow the user to turn on their flashlight simply
-
 public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.main_fab)
@@ -42,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean hasFlash;
     private Camera camera;
     private Camera.Parameters params;
-    public String myMorseString;
-    private int sleepTime;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private boolean isAutoOnEnabled;
@@ -56,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
     private Thread slowThread;
     private Thread mediumThread;
     private Thread fastThread;
-    private TextView mTextField;
     private TextView timerTV;
     private TextView increaseButton;
     private TextView decreaseButton;
     private Button timerButton;
     private static int timer;
+    private CountDownTimer lightTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +76,11 @@ public class MainActivity extends AppCompatActivity {
 
         timer = 1;
 
-
         // Call method to check for flashlight capabillity
         hasFlashlightCapability();
 
         // Instantiate the shared prefs for the main activity
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-//        sharedPreferences.edit();
         editor = sharedPreferences.edit();
 
         isAutoOnEnabled = sharedPreferences.getBoolean(autoOnBooleanPref, false);
@@ -172,9 +165,10 @@ public class MainActivity extends AppCompatActivity {
                 // If timer button is currently "Stop", then turn off the light and set text to start when pressed
                 if (timerButton.getText().equals("Stop")) {
                     timerButton.setText("Start");
+                    lightTimer.cancel();
                     turnLightOff();
                 } else {
-                    // If timer button is current't "Start", then turn on light with current timer settings
+                    // If timer button is currently "Start", then turn on light with current timer settings
                     startTimer(timer);
                     timerButton.setText("Stop");
 
@@ -182,9 +176,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         decreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (lightTimer != null) {
+                    lightTimer.cancel();
+                }
 
                 if (timer > 1) {
                     timer -= 1;
@@ -207,18 +206,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                    timer += 1;
+                if (lightTimer != null) {
+                    lightTimer.cancel();
+                }
 
-                    if (timer == 1) {
-                        timerTV.setText(timer + " minute");
+                timer += 1;
 
-                    } else{
-                        timerTV.setText(timer + " minutes");
-                    }
+                if (timer == 1) {
+                    timerTV.setText(timer + " minute");
 
-                    // When increase is pressed, turn light off and prime the start button
-                    timerButton.setText("Start");
-                    turnLightOff();
+                } else {
+                    timerTV.setText(timer + " minutes");
+                }
+
+                // When increase is pressed, turn light off and prime the start button
+                timerButton.setText("Start");
+                turnLightOff();
             }
         });
     }
@@ -278,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!isFlashlightOn) {
             getCamera();
-            if (!hasFlash || params == null || camera == null ) {
+            if (!hasFlash || params == null || camera == null) {
                 return;
             }
 
@@ -297,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         if (isFlashlightOn) {
             getCamera();
 
-            if (!hasFlash || params == null || camera == null ) {
+            if (!hasFlash || params == null || camera == null) {
                 return;
             }
 
@@ -318,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         slowThread = new Thread() {
             public void run() {
                 try {
-                    for (int i=0; i < times; i++) {
+                    for (int i = 0; i < times; i++) {
                         if (isFlashlightOn) {
                             turnLightOff();
                         } else {
@@ -327,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
                         sleep(delay);
                     }
 
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     Log.d(TAG, "run: Error = " + e);
                 }
@@ -341,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         mediumThread = new Thread() {
             public void run() {
                 try {
-                    for (int i=0; i < times; i++) {
+                    for (int i = 0; i < times; i++) {
                         if (isFlashlightOn) {
                             turnLightOff();
                         } else {
@@ -350,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
                         sleep(delay);
                     }
 
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -364,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
         fastThread = new Thread() {
             public void run() {
                 try {
-                    for (int i=0; i < times; i++) {
+                    for (int i = 0; i < times; i++) {
                         if (isFlashlightOn) {
                             turnLightOff();
                         } else {
@@ -373,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
                         sleep(delay);
                     }
 
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -386,31 +389,36 @@ public class MainActivity extends AppCompatActivity {
     // When timer ends, set TV to "Done" and toggle the light, and reset timer to 1 minute.
     public void startTimer(int time) {
 
+        // Multiply time by 60000 to get time in mili
         time *= 60000;
 
-        toggleFlashlight();
+        // Turn light on
+        turnLightOn();
 
-        new CountDownTimer(time, 60000) {
+        // Create timer with given parameters, set onTick to fire every minute
+        lightTimer = new CountDownTimer(time, 60000) {
 
+            // Update the textview every minute with the current time
             public void onTick(long millisUntilFinished) {
 
-                if (millisUntilFinished <= 60000) {
-                    timerTV.setText(millisUntilFinished /1000/60 + " minute");
+                Log.d(TAG, "onTick: millis left" + millisUntilFinished);
 
-                } else{
-                    timerTV.setText(millisUntilFinished /1000/60 + " minutes");
+                if (millisUntilFinished <= 119999) {
+                    timerTV.setText(millisUntilFinished / 1000 / 60 + " minute");
+
+                } else {
+                    timerTV.setText(millisUntilFinished / 1000 / 60 + " minutes");
                 }
             }
 
+            // Reset time to 1 once timer is done
             public void onFinish() {
-                timerTV.setText("Done!");
-                toggleFlashlight();
+                timerTV.setText("  Done!");
+                turnLightOff();
                 timer = 1;
             }
         }.start();
     }
-
-
 
 
     // Switches////////////////////////////////////////////////////////////////////////////
@@ -457,12 +465,11 @@ public class MainActivity extends AppCompatActivity {
         // on pause turn off the flash if stay on is set to false
         if (!isStayOnEnabled) {
             turnLightOff();
-            camera.release();
+
+            if (camera != null) {
+                camera.release();
+            }
+
         }
     }
-
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//    }
 }
