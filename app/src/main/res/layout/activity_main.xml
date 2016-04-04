@@ -24,7 +24,7 @@
             android:paddingBottom="24dp"
             android:paddingTop="24dp">
 
-            <Switch
+            <android.support.v7.widget.SwitchCompat
                 android:id="@+id/switch_stay_on"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
                 android:text="Stay on   "
                 android:textSize="20dp" />
 
-            <Switch
+            <android.support.v7.widget.SwitchCompat
                 android:id="@+id/switch_auto_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
             android:paddingBottom="24dp"
             android:paddingTop="24dp">
 
-            <Switch
+            <android.support.v7.widget.SwitchCompat
                 android:id="@+id/medium_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                 android:textSize="18dp" />
 
 
-            <Switch
+            <android.support.v7.widget.SwitchCompat
                 android:id="@+id/slow_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -95,11 +95,10 @@
                 android:text="Slow "
                 android:textSize="18dp" />
 
-            <Switch
+            <android.support.v7.widget.SwitchCompat
                 android:id="@+id/fast_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/fast_switch"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="16dp"
@@ -182,7 +181,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_marginLeft="16dp"
-                android:layout_toRightOf="@+id/button_start"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="Increase"
                 android:textAppearance="?android:attr/textAppearanceSmall"

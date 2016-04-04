@@ -10,11 +10,11 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import butterknife.Bind;
@@ -27,9 +27,9 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.main_fab)
     FloatingActionButton myFab;
     @Bind(R.id.switch_auto_start)
-    Switch autoStartSwitch;
+    SwitchCompat autoStartSwitch;
     @Bind(R.id.switch_stay_on)
-    Switch stayOnSwitch;
+    SwitchCompat stayOnSwitch;
 
     private static final String TAG = "MainActivity";
     private static final String autoOnBooleanPref = "autoOnBooleanPref";
@@ -45,9 +45,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean isStayOnEnabled;
     private boolean isShortCutEnabled;
     private boolean isFlashlightOn;
-    private Switch slowSwitch;
-    private Switch fastSwitch;
-    private Switch medSwitch;
+    private SwitchCompat slowSwitch;
+    private SwitchCompat fastSwitch;
+    private SwitchCompat medSwitch;
     private Thread slowThread;
     private Thread mediumThread;
     private Thread fastThread;
@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
         increaseButton = (TextView) findViewById(R.id.tv_increase);
         decreaseButton = (TextView) findViewById(R.id.tv_decrease);
         timerButton = (Button) findViewById(R.id.button_start);
-        slowSwitch = (Switch) findViewById(R.id.slow_switch);
-        medSwitch = (Switch) findViewById(R.id.medium_switch);
-        fastSwitch = (Switch) findViewById(R.id.fast_switch);
+        slowSwitch = (SwitchCompat) findViewById(R.id.slow_switch);
+        medSwitch = (SwitchCompat) findViewById(R.id.medium_switch);
+        fastSwitch = (SwitchCompat) findViewById(R.id.fast_switch);
         ///////////////////////////////////////////////////////////////////////////
 
         timer = 1;
